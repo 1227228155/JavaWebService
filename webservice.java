@@ -1,4 +1,4 @@
-package hello;
+package com.web.frame.webservice.ws;
 
 
 
@@ -21,6 +21,7 @@ import org.apache.axis2.transport.http.HTTPConstants;
 
 public class webservice { 
 	  private static String url = "http://114.115.178.10:1258/ThirdWebservice.asmx"; 
+	  private static String namespace = "http://www.hzsun.com/";
 	  //端点引用 指接口位置  
       private static EndpointReference targetEpr = new EndpointReference(url);  
       //有抽象OM工厂获取OM工厂，创建request SOAP包  
@@ -28,7 +29,6 @@ public class webservice {
       
 	  static String action  = "";  
       static String methodStr = "";  
-      static String namespace = "";   
       static String tns = "";  
       static String[] pars = null;  
       static String[] vals = null;  
@@ -37,9 +37,8 @@ public class webservice {
 	
 	
 	public static OMElement getOME(String act,String[] pars1,String[] vals1){
-		action  = "http://www.hzsun.com/"+act;  
+		action  = namespace + act;  
         methodStr = act;  
-        namespace = "http://www.hzsun.com/";   
         tns = act;  
         pars = pars1;  
         vals = vals1; 
@@ -111,30 +110,35 @@ public class webservice {
       
        
        
-    //解析返回的结果   
+   
+    //解析返回的结果
     public static List<String> getResults(OMElement element) {
-  		 List<String> list = new ArrayList<String>();
-          if (element == null) {
-              return null;
-          }
-          	System.out.println("IN: " + element); // 新增
-          Iterator iterator = element.getChildElements();
-          OMElement result = null;
-          while (iterator.hasNext()) {
-              result = (OMElement) iterator.next();
-              OMElement elem = (OMElement)iterator.next();
-              list.add(elem.getText());
-              
-          }
-          return list;
-  	}
-  	
-    
+        if (element == null) {
+            return null;
+        }
+        System.out.println("IN: " + element); // 新增
+        Iterator iterator = element.getChildElements();
+        Iterator innerItr;
+        List<String> list = new ArrayList<String>();
+        OMElement result = null;
+        while (iterator.hasNext()) {
+            result = (OMElement) iterator.next();
+         //   System.out.println("While: " + result); // 新增
+            innerItr = result.getChildElements();
+            System.out.println("返回值---" + result.getLocalName() + ": " + result.getText());  // 新增
+           /* while (innerItr.hasNext()) {  // 新增
+            		OMElement elem = (OMElement)innerItr.next();  // 新增
+            		System.out.println("\tWhile: "+elem);  // 新增
+            		System.out.println("\t\t" + elem.getLocalName() + ": " + elem.getText());  // 新增
+            } // 新增
+*/        }
+        	return list;
+    }
      
     //添加头部信息	
      public static void addValidation(ServiceClient serviceClient) {  
          OMFactory fac = OMAbstractFactory.getOMFactory();  
-         OMNamespace omNs = fac.createOMNamespace("http://www.hzsun.com/","SecurityHeader");  
+         OMNamespace omNs = fac.createOMNamespace(namespace,"SecurityHeader");  
          OMElement header = fac.createOMElement("SecurityHeader", omNs); 
          OMElement ThirdType = fac.createOMElement("ThirdType", omNs);  
          OMElement Secret1 = fac.createOMElement("Secret1", omNs); 
